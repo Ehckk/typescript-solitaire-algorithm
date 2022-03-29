@@ -1,0 +1,349 @@
+* {	
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	white-space: nowrap;
+}
+
+:root {
+	--white: #ffffff;
+	--black: #000000;
+	--sky-blue: #7fa1ff;
+	--medium-blue: #4062c0;
+	--forest-green: #2a611a;
+	--hunter-green: #308615;
+	--garnet: #940000;
+	--gold: #ddcc00;
+	--card-unit-dim: 24px;
+	--card-unit-time: .001s;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-stretch: narrower;
+	font-weight: 700;
+	font-style: oblique;
+	background-color: var(--forest-green);
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+.main {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+/*.game_cntr {
+	position: relative;
+	top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}*/
+
+.game_board {
+	height: auto;
+	width: calc((var(--card-unit-dim) * 1.25) + ((var(--card-unit-dim) * 5) * 10));
+	background-color: var(--forest-green);
+	display: flex;
+	justify-content: right;
+	position: relative;
+	top: 0;
+}
+
+.win_pile {
+	height: calc(var(--card-unit-dim) * 7);
+	width: calc(var(--card-unit-dim) * 5);
+	position: relative;
+} 
+
+.card.draw {
+	left: calc((var(--card-unit-dim) / 4))
+}
+
+.card.discard {
+	left: calc((var(--card-unit-dim) / 4) + (5 * var(--card-unit-dim)))
+}
+
+.card.stack_1 {
+	left: calc((var(--card-unit-dim) / 2) + (2 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_2 {
+	left: calc((var(--card-unit-dim) / 2) + (3 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_3 {
+	left: calc((var(--card-unit-dim) / 2) + (4 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_4 {
+	left: calc((var(--card-unit-dim) / 2) + (5 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_5 {
+	left: calc((var(--card-unit-dim) / 2) + (6 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_6 {
+	left: calc((var(--card-unit-dim) / 2) + (7 * (5 * var(--card-unit-dim))))
+}
+
+.card.stack_7 {
+	left: calc((var(--card-unit-dim) / 2) + (8 * (5 * var(--card-unit-dim))))
+}
+
+.card.win_spade, 
+.card.win_heart, 
+.card.win_club, 
+.card.win_diamond {
+	left: calc((var(--card-unit-dim) / 4) + (var(--card-unit-dim) / 2) + (9 * (5 * var(--card-unit-dim))))
+}
+
+.win_piles {
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.win_pile {
+	height: calc(var(--card-unit-dim) * 7);
+	width: calc(var(--card-unit-dim) * 5);
+	margin: calc(var(--card-unit-dim) / 4);
+	border: calc(var(--card-unit-dim) / 4) var(--color-kelly-green) dashed;
+	border-radius: calc(var(--card-unit-dim) / 4);
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.win_pile > .suit_img {
+	height: calc(var(--card-unit-dim) * 2);
+	width: calc(var(--card-unit-dim) * 2);
+	filter: brightness(0) saturate(100%);
+}
+
+#win_spade > .suit_img {
+	background-image: url('/images/spade.png');
+	filter: invert(57%) sepia(77%) saturate(557%) hue-rotate(57deg) brightness(92%) contrast(86%);
+}
+
+#win_heart > .suit_img {
+	background-image: url('/images/heart.png');
+	filter: invert(57%) sepia(77%) saturate(557%) hue-rotate(57deg) brightness(92%) contrast(86%);
+}
+
+#win_club > .suit_img {
+	background-image: url('/images/club.png');
+	filter: invert(57%) sepia(77%) saturate(557%) hue-rotate(57deg) brightness(92%) contrast(86%);
+}
+
+#win_diamond > .suit_img {
+	background-image: url('/images/diamond.png');
+	filter: invert(57%) sepia(77%) saturate(557%) hue-rotate(57deg) brightness(92%) contrast(86%);
+}
+
+.card {
+	height: auto;
+	width: auto;
+	transition: all var(--card-unit-time) ease;
+	position: absolute;
+}
+
+.card_body {
+	height: calc(var(--card-unit-dim) * 6.5);
+	width: calc(var(--card-unit-dim) * 4.5);
+	margin: calc(var(--card-unit-dim) / 4);
+	background-color: var(--white);
+	border: 1px var(--sky-blue) solid;
+	border-radius: calc(var(--card-unit-dim) / 4);
+	display: flex;
+	position: relative;
+}
+
+.card.selected > .card_body {
+	border: 1px var(--gold) solid;
+}
+
+.side {
+	height: calc(var(--card-unit-dim) * 6);
+	width: calc(var(--card-unit-dim) / 1.5);
+	margin-top: calc(var(--card-unit-dim) / 4);
+	margin-bottom: calc(var(--card-unit-dim) / 4);
+	background-color: var(--white);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.side.right {
+	rotate: 180deg;
+}
+
+.card_suit {
+	display: flex;
+	flex-direction: column;
+}
+
+.card_suit.flipped {
+	display: none;
+}
+
+.suit_img.inner {
+	height: var(--card-unit-dim);
+	width: var(--card-unit-dim);
+}
+
+.suit_img.outer {
+	height: calc(var(--card-unit-dim) / 2);
+	width: calc(var(--card-unit-dim) / 2);
+	margin: calc(var(--card-unit-dim) / 8);
+}
+
+.suit_num {
+	height: calc(var(--card-unit-dim) / 1.5);
+	width: calc(var(--card-unit-dim) / 1.5);
+}
+
+.suit_num {
+	font-family: Arial, Helvetica, sans-serif;
+	font-stretch: narrower;
+	font-weight: 700;
+	font-style: normal;
+	font-size: calc(var(--card-unit-dim) / 1.5);
+	text-align: center;
+	line-height: calc(var(--card-unit-dim) / 1.5);
+}
+
+.card[suit='spade'] .suit_num, .card[suit='club'] .suit_num {	
+	color: var(--black);
+}
+
+.card[suit='heart'] .suit_num, .card[suit='diamond'] .suit_num {	
+	color: var(--garnet);
+}
+
+.suit_img {
+	background-size: 100%;
+	background-repeat: no-repeat;
+}
+
+.card[suit='heart'] .suit_img {
+	background-image: url('/images/heart.png');
+}
+
+.card[suit='spade'] .suit_img {
+	background-image: url('/images/spade.png');
+}
+
+.card[suit='club'] .suit_img {
+	background-image: url('/images/club.png');
+}
+
+.card[suit='diamond'] .suit_img {
+	background-image: url('/images/diamond.png');
+}
+
+.suit_img.flip {
+	rotate: 180deg;
+}
+
+.middle {
+	height: calc(var(--card-unit-dim) * 5);
+	width: calc(var(--card-unit-dim) * 3);
+	border: none;
+	margin-top: calc((var(--card-unit-dim) / 4) + (var(--card-unit-dim) / 2));
+	margin-bottom: calc((var(--card-unit-dim) / 4) + (var(--card-unit-dim) / 2));
+	display: flex;
+}
+
+.card[value='11'] .middle, 
+.card[value='12'] .middle, 
+.card[value='13'] .middle{
+	border: 1px var(--color-pale-blue) solid;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+}
+
+.card[value='11'] .middle {
+	background-image: url('/images/jack.png');
+}
+
+.card[value='12'] .middle {
+	background-image: url('/images/queen.png');
+}
+
+.card[value='13'] .middle {
+	background-image: url('/images/king.png');
+}
+
+.inner {
+	height: 100%;
+	width: var(--card-unit-dim);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.card[value='1'] .inner,
+.card[value='2'] .inner,
+.card[value='3'] .inner,
+.card[value='4'] .inner,
+.card[value='5'] .inner,
+.card[value='6'] .inner,
+.card[value='7'] .inner,
+.card[value='8'] .inner,
+.card[value='9'] .inner,
+.card[value='10'] .inner {
+	justify-content: space-around;
+}
+
+.card[value='2'] .inner i:nth-last-child(-n+1),
+.card[value='3'] .inner i:nth-last-child(-n+1),
+.card[value='4'] .inner.left i:nth-last-child(-n+1),
+.card[value='4'] .inner.right i:nth-last-child(-n+1),
+.card[value='5'] .inner.left i:nth-last-child(-n+1),
+.card[value='5'] .inner.right i:nth-last-child(-n+1),
+.card[value='6'] .inner.left i:nth-last-child(-n+1),
+.card[value='6'] .inner.right i:nth-last-child(-n+1),
+.card[value='7'] .inner.left i:nth-last-child(-n+1),
+.card[value='7'] .inner.right i:nth-last-child(-n+1),
+.card[value='8'] .inner.left i:nth-last-child(-n+2),
+.card[value='8'] .inner.right i:nth-last-child(-n+2),
+.card[value='9'] .inner.left i:nth-last-child(-n+2),
+.card[value='9'] .inner.right i:nth-last-child(-n+2),
+.card[value='10'] .inner.left i:nth-last-child(-n+2),
+.card[value='10'] .inner.center i:nth-last-child(-n+1), 
+.card[value='10'] .inner.right i:nth-last-child(-n+2),
+.card[value='11'] .inner.right, 
+.card[value='12'] .inner.right, 
+.card[value='13'] .inner.right {
+	rotate: 180deg;
+}
+
+.card.flipped .side {
+	width: calc(var(--card-unit-dim) / 2);
+}
+
+.card.flipped .middle {
+	height: calc(var(--card-unit-dim) * 5.5);
+	width: calc(var(--card-unit-dim) * 3.5);
+	margin-top: calc(var(--card-unit-dim) / 2);
+	margin-bottom: calc(var(--card-unit-dim) / 2);
+	background-color: var(--medium-blue);
+	border: calc(var(--card-unit-dim) / 2) var(--sky-blue) solid;
+	border-radius: calc(var(--card-unit-dim) / 4);
+	background-image: none;
+}
+
+.card.flipped .suit_img.inner, .card.flipped .suit_img.outer, .card.flipped .suit_num {
+	display: none;
+}
