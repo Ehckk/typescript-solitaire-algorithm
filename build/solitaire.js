@@ -1,8 +1,7 @@
-"use strict";
 const unitDim = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-dim'));
 const unitTime = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-time'));
 /**
- * Enum of card suits
+ * Represents the four card suits
  */
 var Suit;
 (function (Suit) {
@@ -13,14 +12,17 @@ var Suit;
 })(Suit || (Suit = {}));
 class CardStack {
     /**
-    * Base class for a card stack object
-    */
+     * Base class for a collection of cards
+     *
+     * @param name Name of the card stack
+     */
     constructor(name) {
         this.name = name;
         this.cards = [];
     }
     /**
      * Returns the card on top of the cardstack
+     *
      * @returns The card on top of the stack
      */
     topCard() {
@@ -28,6 +30,7 @@ class CardStack {
     }
     /**
      * Returns the size of the card collection
+     *
      * @returns The number of cards in the collection
      */
     cardCount() {
@@ -35,7 +38,8 @@ class CardStack {
     }
     /**
      * Pushes a card to the top of the stack
-     * @param card The card added
+     *
+     * @param card The card to be added
      */
     addCard(card) {
         var _a;
@@ -59,8 +63,9 @@ class CardStack {
         this.cards.push(card);
     }
     /**
-     * Removes the top card of the stack and returns it
-     * @returns The card removed
+     * Pops the top card of the stack and returns it
+     *
+     * @returns The card that was removed
      */
     removeCard() {
         const card = this.cards.pop();
@@ -69,13 +74,15 @@ class CardStack {
     }
     /**
      * Checks if the stack is empty
+     *
      * @returns `true` if there are no cards in the stack, `false` otherwise
      */
     isEmpty() {
         return this.cards.length == 0;
     }
     /**
-     * Checks if a given card is present in the collection
+     * Checks if a given card is present in the collection object
+     *
      * @param card The card to cehck for
      * @returns `true` if the card exists in the stack, `false` otherwise
      */
@@ -87,6 +94,7 @@ class CardCenterStack extends CardStack {
     /**
      * Represents the center card stacks in solitaire
      * @extends CardStack
+     *
      * @param num Number associated with the stack, used to position the cards in the stack and determine the number of face-down cards in the stack initially
      */
     constructor(name, num) {
@@ -95,6 +103,7 @@ class CardCenterStack extends CardStack {
     }
     /**
      * Returns `true` if a card can be moved to this stack, per the rules of solitare
+     *
      * @param card The given card
      * @returns `true` if the given card is a 'King' and this stack has no cards in it OR if the top card in this stack of the opposite suit and of the value 1 higher than the given card
      */
@@ -117,7 +126,8 @@ class CardCenterStack extends CardStack {
         return false;
     }
     /**
-     * Adds a card to the CardStack of the center stack object
+     * Adds a card to the CardStack of the center stack object, setting the css `top` style accordingly
+     *
      * @param card The card to be added
      * @param faceDown If the cards being added are face-down or not, defaults to `false`
      */
@@ -130,6 +140,11 @@ class CardCenterStack extends CardStack {
         card.stack = this;
         super.addCard(card);
     }
+    /**
+     * Removes the card from the top of the stack, changing the `faceDownUnderneath` property accordingly
+     *
+     * @returns The card removed
+     */
     removeCard() {
         var _a;
         if ((_a = this.topCard()) === null || _a === void 0 ? void 0 : _a.faceDownUnderneath) {
@@ -137,6 +152,12 @@ class CardCenterStack extends CardStack {
         }
         return super.removeCard();
     }
+    /**
+     * Checks if a card is the bottom card within the stack
+     *
+     * @param card The card to check for
+     * @returns `true` if the given card is on the bottom of the stack, `false` otherwise
+     */
     isBottom(card) {
         return this.cards[0] == card;
     }
@@ -144,7 +165,9 @@ class CardCenterStack extends CardStack {
 class CardSuitPile extends CardStack {
     /**
      * Represents a CardStack that can only have cards added to it if they are of the same suit
+     *
      * @extends CardStack
+     *
      * @param suit
      */
     constructor(name, suit, number) {
@@ -182,7 +205,9 @@ class CardSuitPile extends CardStack {
 class CardNode extends CardStack {
     /**
      * Represents a unidirectional collection of cards that is drawn to/from another card collection, forming a chain of CardNodes
+     *
      * @extends CardStack
+     *
      * @param faceDown If true, the card objects in the node will be face down
      * @param singleton If true, card objects in this node cannot be removed from the chain from this node
      */
@@ -208,11 +233,16 @@ class CardNode extends CardStack {
 class DrawNode extends CardNode {
     /**
      * Represents a draw pile, which is adds cards to the target discard pile until empty, at which point the cards are recycled back into the draw pile]
+     *
      * @extends CardNode
      */
     constructor(name) {
         super(name, true, true);
     }
+    /**
+     * Takes the top card of the Node and appends it to the target Node. if this node is empty, the cards from the targetNode are recylced
+     * @returns None
+     */
     drawCard() {
         var _a;
         if (super.isEmpty()) {
@@ -225,7 +255,7 @@ class DrawNode extends CardNode {
         (_a = this.target) === null || _a === void 0 ? void 0 : _a.addCard(card);
     }
     /**
-     * Recycles every card from the discard node back into the draw pile
+     * Recycles every card from the discard Node back into this Node
      */
     recycleDraw() {
         var _a, _b;
@@ -238,6 +268,11 @@ class DrawNode extends CardNode {
     }
 }
 class Board {
+    /**
+     * Represents a game of solitare
+     *
+     * @param element The HTML element that corresponds to the board
+     */
     constructor(element) {
         this.element = element;
         this.draw = new DrawNode('draw');
@@ -257,9 +292,6 @@ class Board {
             losses: 0,
         };
         this.loop = undefined;
-        this.initBoard();
-    }
-    initBoard() {
         let s = 0;
         for (let suit in Suit) {
             this.wins.push(new CardSuitPile(`win_${suit.toLowerCase()}`, suit, s));
@@ -268,9 +300,13 @@ class Board {
         for (let i = 0; i < 7; i++) {
             this.stacks.push(new CardCenterStack(`stack_${i + 1}`, i));
         }
-        this.startGame();
+        this.dealCards();
     }
-    // TODO: put card array under createcards method, remove it as a class attr if you are gonna call createcards after every game
+    /**
+     * Creates 52 card objects, 13 per suit for all 4 suits
+     *
+     * @returns An array containing all 52 created card elements
+     */
     createCards() {
         const cards = [];
         for (let suit in Suit) {
@@ -287,10 +323,14 @@ class Board {
         }
         return cards;
     }
-    startGame() {
-        this.dealCards();
-        this.updateBoard();
-    }
+    /**
+     * Creates and deals cards:
+     * - Creates cards
+     * - For each stack, deals a number random cards to said stack equal to the stacks number (1 card in stack 1, 2 in stack 2, 3 in stack 3, etc)
+     * - The last card in each stack is added faceUp, rest are added faceDown
+     * - Once 28 total cards have been dealt to each CenterStack, the rest are added in a random order to the DrawNode
+     * - Game starts with the first call to `updateBoard()`
+     */
     dealCards() {
         const cards = this.createCards();
         const randomCard = () => cards.splice(Math.floor(Math.random() * cards.length), 1)[0];
@@ -315,11 +355,26 @@ class Board {
             card.stack = this.draw;
             this.draw.addCard(card);
         }
-    }
-    handleClickEvent(mX, mY) {
-        this.moveHandler(mX, mY);
         this.updateBoard();
     }
+    /**
+     * Handles user click events
+     *
+     * @param mX X-position of user input
+     * @param mY Y-position of user input
+     */
+    handleClickEvent(mX, mY) {
+        this.moveHandler(mX, mY);
+    }
+    /**
+     * Updates the board after each move:
+     * - Checks if any faceDown cards can be flipped and flips them accordingly
+     * - Checks if the position is won, resets game if it is
+     * - Checks if the position is lost, resets game if it is
+     * - Makes the next call to autoMove is auto is enabled
+     *
+     * @returns None
+     */
     updateBoard() {
         this.stacks.forEach(stack => {
             var _a, _b;
@@ -329,52 +384,64 @@ class Board {
                 this.faceDownCards -= 1;
             }
         });
-        // merge board with game
-        // come up with less shittier function names
-        if (this.faceDownCards == 0) {
-            let isWin = true;
-            this.wins.forEach(win => {
-                if (win.cardCount() != 13) {
-                    isWin = false;
-                }
-            });
-            if (isWin) {
-                if (this.auto.enabled) {
-                    this.auto.wins += 1;
-                }
-                this.endGame(true);
-                return;
+        if (this.winCheck()) {
+            console.log("Epic Win");
+            if (this.auto.enabled) {
+                this.auto.wins += 1;
             }
-            // auto win
+            this.endGame();
+            return;
         }
-        // make sure to add autoLose
-        if (this.faceDownCards > 0) {
-            if (this.consecutiveDrawCount > Math.ceil((1 + this.draw.cards.length + this.discard.cards.length) * 1.5)) {
+        // TODO: come up with less shittier function names
+        if (this.failCheck()) {
+            console.log("Big Fail");
+            if (this.auto.enabled) {
                 this.auto.losses += 1;
-                this.endGame(false);
-                return;
             }
+            this.endGame();
+            return;
         }
         if (this.auto.enabled) {
             setTimeout(autoMove, unitTime * 1000);
         }
     }
-    failCheck() {
-        // consecutive draw count
-    }
+    /**
+     * Checks if the user has a "won" position
+     * 1. The total amount of faceDown cards in the center stacks is equal to zero (this is a guaranteed winnable position in solitaire)
+     * 2. Each win pile has all 13 cards in it (it is not possible for these cards to be out of order in the program, so checking just the number of cards if fine here)
+     *
+     * @returns `true` if position is won, `false` otherwise
+     */
     winCheck() {
-        // TODO: lol
-    }
-    endGame(isWin) {
-        if (this.auto.enabled) {
-            // TODO: get rid of else blocks
-            if (isWin) {
-                console.log("Epic Win");
-            }
-            else {
-                console.log("Big Fail");
-            }
+        if (this.faceDownCards == 0) {
+            let isWin = true;
+            this.wins.forEach(win => {
+                if (isWin) {
+                    if (win.cardCount() != 13) {
+                        isWin = false;
+                    }
+                }
+            });
+            return isWin;
         }
+        return false;
+    }
+    /**
+     * Checks if the user has a "lost" position:
+     * 1. The total amount of faceDown cards in the center stacks is more than zero (this is a guaranteed winnable position in solitaire)
+     * 2. The draw pile has been drawn through an amount of times equal to `(1 + [total cards in DrawNode] + [total cards in DiscardNode]) * 1.5`, rounded up
+     *
+     * For the computer, the second condition will only be met if no better moves exist
+     *
+     * @returns `true` if position is lost, `false` otherwise
+     */
+    failCheck() {
+        return this.faceDownCards > 0 && this.consecutiveDrawCount > Math.ceil((1 + this.draw.cards.length + this.discard.cards.length) * 1.5);
+    }
+    /**
+     * Resets the game by destroying all card elements and recreating and redealing them
+     */
+    endGame() {
         while (!this.draw.isEmpty()) {
             const card = this.draw.cards.pop();
             card === null || card === void 0 ? void 0 : card.element.remove();
@@ -399,98 +466,93 @@ class Board {
             }
             win.cards = [];
         });
-        // TODO: replace this shit with a general initBoard method, containing constructor initialization args
-        // do something with isWin with auto
-        // while (!this.draw.isEmpty()) {
-        // 	const card = this.draw.removeCard()
-        // 	card.faceDown = true
-        // 	card.faceDownUnderneath = false
-        // 	this.cards.push(card)
-        // }
-        // while (!this.discard.isEmpty()) {
-        // 	const card = this.discard.removeCard()
-        // 	card.faceDown = true
-        // 	card.faceDownUnderneath = false
-        // 	this.cards.push(card)
-        // }
-        // this.stacks.forEach(stack => {
-        // 	while (!stack.isEmpty()) {
-        // 		const card = stack.removeCard()
-        // 		card.faceDown = true
-        // 		card.faceDownUnderneath = false
-        // 		this.cards.push(card)
-        // 	}
-        // })
-        // this.wins.forEach(win => {
-        // 	while (!win.isEmpty()) {
-        // 		const card = win.removeCard()
-        // 		card.faceDown = true
-        // 		card.faceDownUnderneath = false
-        // 		this.cards.push(card)
-        // 	}
-        // })
-        // TODO: fix this bullshit like this is actually disgusting you fucking moron jesus christ
-        this.startGame();
+        this.dealCards();
     }
-    targetSelected() {
+    /**
+     * Checks if there are any cards currently selected
+     *
+     * @returns `true` if there are selected cards, `false` otherwise
+     */
+    hasSelected() {
         return this.selected.cards.length > 0;
     }
-    select(stack, cards) {
+    /**
+     * Selects cards
+     *
+     * @param stack The stack which the selected cards belong to
+     * @param cards The cards to be selected
+     */
+    selectCards(stack, cards) {
         cards.forEach(card => {
             card.element.classList.add('selected');
             this.selected.cards.push(card);
         });
         this.selected.stack = stack;
     }
-    deselect() {
+    /**
+     * Deselects all cards
+     */
+    deselectCards() {
         this.selected.cards.forEach(card => {
             card.element.classList.remove('selected');
         });
         this.selected.stack = undefined;
         this.selected.cards = [];
     }
+    /**
+     * Handles the input of the user
+     *
+     * @param mX The x-position of the user input
+     * @param mY The y-position of the user input
+     */
     moveHandler(mX, mY) {
         const x = Math.floor(mX / (unitDim * 6.25));
         const y = Math.floor(mY / (unitDim * 9.25));
         let stack;
         switch (true) {
             case x === 0 || (x === 1 && this.discard.isEmpty()):
-                this.deselect();
+                this.deselectCards();
                 this.draw.drawCard();
                 break;
-            case x === 1 && !this.targetSelected():
-                this.select(this.discard, [this.discard.topCard()]);
+            case x === 1 && !this.hasSelected():
+                this.selectCards(this.discard, [this.discard.topCard()]);
                 break;
-            case x === 9 && this.targetSelected() && this.selected.cards.length == 1:
+            case x === 9 && this.hasSelected() && this.selected.cards.length == 1:
                 const win = this.getWinFromSuit(this.selected.cards[0].suit);
                 if (this.wins.find(win => win == this.selected.stack) == undefined) {
                     this.makeMove({ card: win.topCard(), target: win });
                 }
-                this.deselect();
+                this.deselectCards();
                 break;
             case x === 9 && this.wins[y].topCard() != undefined:
-                this.select(this.wins[y], [this.wins[y].topCard()]);
+                this.selectCards(this.wins[y], [this.wins[y].topCard()]);
                 break;
-            case x > 1 && x < 9 && this.targetSelected():
+            case x > 1 && x < 9 && this.hasSelected():
                 stack = this.stacks[x - 2];
                 if (stack != this.selected.stack) {
                     this.makeMove({ card: stack.topCard(), target: stack });
                 }
-                this.deselect();
+                this.deselectCards();
                 break;
             case x > 1 && x < 9:
                 stack = this.stacks[x - 2];
                 const cardY = Math.floor(mY / (unitDim * 1.5));
                 const card = stack.isEmpty() ? undefined : cardY >= stack.cardCount() ? stack.topCard() : stack.cards[cardY];
                 if (card && !card.faceDown) {
-                    this.select(stack, stack.cards.slice(stack.cards.indexOf(card)));
+                    this.selectCards(stack, stack.cards.slice(stack.cards.indexOf(card)));
                 }
                 break;
             default:
-                this.deselect();
+                this.deselectCards();
                 break;
         }
+        this.updateBoard();
     }
+    /**
+     * Makes a given move on the board
+     *
+     * @param move The move to make
+     */
     makeMove(move) {
         var _a;
         if (move.target.canMoveTo(this.selected.cards[0])) {
@@ -507,11 +569,25 @@ class Board {
                 }
             }
         }
-        this.deselect();
+        this.deselectCards();
     }
+    /**
+     * Finds a certain CardSuitPile based on the given suit and returns it
+     *
+     * @param suit The suit to fetch the corresponding pile for
+     * @returns The CardSuitPile that corresponds the the given suit
+     */
     getWinFromSuit(suit) {
         return this.wins.find(win => win.suit == suit);
     }
+    /**
+     * Gets the weight of a move given the state of the board, the current position of the card to move, the context with respect to faceDown cards, and other factors
+     *
+     * @param card The card to move
+     * @param target The potential spot to move the card to
+     * @param cards The other cards that could be moved
+     * @returns A number value that corresponds to the weight of the move
+     */
     getMoveWeight(card, target, cards) {
         let weight;
         switch (true) {
@@ -545,6 +621,13 @@ class Board {
         }
         return weight;
     }
+    /**
+     * Checks if a card being moved to it's win pile can open a move that would result in a faceDown card being flipped
+     *
+     * @param card The card in question
+     * @param cards The other cards that can be moved, for context
+     * @returns `true` if the scenario is valid in the given context, `false` otherwise
+     */
     canCardOpenByWin(card, cards) {
         const predicate = (card, card2) => {
             if (card != card2) {
@@ -561,6 +644,13 @@ class Board {
         };
         return cards.find((card2) => predicate(card, card2)) != undefined;
     }
+    /**
+     * Checks if a card being moved to a given stack pile can open a move that would result in a faceDown card being flipped
+     *
+     * @param card The card in question
+     * @param cards The other cards that can be moved, for context
+     * @returns `true` if the scenario is valid in the given context, `false` otherwise
+     */
     canCardOpenByStack(card, cards) {
         if (card.stack instanceof CardCenterStack && card.stack.isBottom(card)) {
             if (cards.find(card2 => (card2.faceDownUnderneath || card.stack == this.discard) && card2.value == 13 && card != card2)) {
@@ -573,7 +663,15 @@ class Board {
         return cards.find((card2) => card2.faceDownUnderneath && nextCard.value == card2.value + 1 && (((nextCard.suit == 'Spade' || nextCard.suit == 'Club') && (card2.suit == 'Heart' || card2.suit == 'Diamond')) || ((nextCard.suit == 'Heart' || nextCard.suit == 'Diamond') && (card2.suit == 'Spade' || card2.suit == 'Club')))) != undefined;
     }
 }
-function createCardElement(element, suit, value) {
+/**
+ * Creates a card element by styling HTML Divs and appends it to the board element
+ *
+ * @param boardElement The HTML element that represents the game Board
+ * @param suit The suit of the card
+ * @param value The value of the card
+ * @returns The created card element
+ */
+function createCardElement(boardElement, suit, value) {
     const cardNum = value == 1 ? 'A' : value == 11 ? 'J' : value == 12 ? 'Q' : value == 13 ? 'K' : `${value}`;
     const side = value > 10 ? 1 : value < 4 ? 0 : value < 10 ? Math.floor(value / 2) : 4;
     const center = value > 10 ? 0 : value < 4 ? value : value < 10 ? value - (Math.floor(value / 2) * 2) : 2;
@@ -646,7 +744,7 @@ function createCardElement(element, suit, value) {
     card.appendChild(sideL);
     card.appendChild(middle);
     card.appendChild(sideR);
-    element.appendChild(card);
+    boardElement.appendChild(card);
     return card;
 }
 const gameBoard = document.querySelector('.game_board');
@@ -660,7 +758,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key == 'c') {
         solitaire.auto.enabled = !solitaire.auto.enabled;
         if (solitaire.auto.enabled) {
-            solitaire.deselect();
+            solitaire.deselectCards();
             console.log('Computer enabled');
             solitaire.updateBoard();
         }
@@ -672,6 +770,16 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+// TODO: move auto shit to it's own object
+/**
+ * Represents a computer calculated
+ * - Grabs every possible Card that can be moved (cards on top of Discard Node and each Win Pile (if any) and any face-up cards in Center Stacks)
+ * - Compares each Card with the top card of each Center Stack and the card's corresponding win pile.
+ * - Uses these comparisons to create a list of valid moves, according to solitaire rules
+ * - Cehcks every possible move to find the move with the highest weight value given the context of the board and makes selects that move as the best move
+ * - If there is no best move (no valid moves) or if the weight of the best move is less than 1.2, the computer draws a card instead
+ * - Otherwise the bestMove is made, cards are updated accordingly
+ */
 function autoMove() {
     //simplify the app
     // remove a lot of useless functions
@@ -747,3 +855,4 @@ function autoMove() {
     }
     solitaire.updateBoard();
 }
+export {};
