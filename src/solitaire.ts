@@ -311,6 +311,8 @@ interface BoardState {
 	wins: Array<CardSuitPile>
 }
 
+
+
 interface Auto {
 	enabled: boolean
 	wins: number
