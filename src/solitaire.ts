@@ -394,8 +394,12 @@ class Board {
 				const card = randomCard()
 				j != 0 ? card.faceDownUnderneath = true : {}
 				card.stack = this.stacks[i]
-				this.stacks[i].addCard(card, i == j ? false : true)
-				this.faceDownCards += 1
+				if (i == j) {
+					this.stacks[i].addCard(card, false)
+				} else {
+					this.stacks[i].addCard(card, true)
+					this.faceDownCards += 1
+				}
 			}
 		}
 		while (cards.length > 0) {
@@ -423,11 +427,9 @@ class Board {
 		// come up with less shittier function names
 		if (this.faceDownCards == 0) {
 			let isWin: boolean = true;
-			[...this.stacks, this.discard, this.draw].forEach(stack => {
-				if (isWin) {
-					if (!stack.isEmpty()) {
-						isWin = false
-					}
+			this.wins.forEach(win => {
+				if (win.cardCount() != 13) {
+					isWin = false
 				}
 			})
 			if (isWin) {
@@ -435,15 +437,17 @@ class Board {
 					this.auto.wins += 1
 				}
 				this.endGame(true)
+				return
 			}
 			// auto win
-			return
 		}
 		// make sure to add autoLose
-		if (this.consecutiveDrawCount > Math.ceil((this.draw.cards.length + this.discard.cards.length) * 1.5)) {
-			this.auto.losses += 1
-			this.endGame(false)
-			return
+		if (this.faceDownCards > 0) {
+			if (this.consecutiveDrawCount > Math.ceil((1 + this.draw.cards.length + this.discard.cards.length) * 1.5)) {
+				this.auto.losses += 1
+				this.endGame(false)
+				return
+			}
 		}
 		if (this.auto.enabled) {
 			setTimeout(autoMove, unitTime * 1000)
@@ -826,12 +830,12 @@ function autoMove(): void {
 	})
 	switch (true) {
 		case bestMove == undefined:
-			console.log('No valid moves detected, drawing')
+			//console.log('No valid moves detected, drawing')
 			solitaire.draw.drawCard()
 			solitaire.consecutiveDrawCount += 1
 			break;
 		case bestMove!.weight! < 1.2:
-			console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight}) - Drawing instead`)
+			//console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight}) - Drawing instead`)
 			solitaire.draw.drawCard()
 			solitaire.consecutiveDrawCount += 1
 			break;
@@ -845,11 +849,11 @@ function autoMove(): void {
 			while (cards.length > 0) {
 				bestMove!.target.addCard(cards.pop()!)
 			}
-			console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight})`)
+			//console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight})`)
 			solitaire.consecutiveDrawCount = 0
 			break;
 		default:
-			console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight})`)
+			//console.log(`${bestMove!.card!.suit}_${bestMove!.card!.value} to ${bestMove!.target.name} (${bestMove!.target.topCard() == undefined ? 'none' : `${bestMove!.target.topCard()!.suit}_${bestMove!.target.topCard()!.value}`}) (${bestMove!.weight})`)
 			bestMove!.target.addCard(bestMove!.card!.stack.removeCard())
 			solitaire.consecutiveDrawCount = 0
 			break;
